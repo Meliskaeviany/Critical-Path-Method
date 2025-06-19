@@ -86,7 +86,7 @@ def calculate_cpm(data):
             label_full[node] = f"{no}\nES: {es}\nLS: {ls}\nD: {dur}"
 
         # Gambar grafik
-        plt.figure(figsize=(12, 6), dpi=200)
+        plt.figure(figsize=(60, 20), dpi=500)
         nx.draw_networkx_edges(G, pos, edge_color='gray')
         nx.draw_networkx_nodes(G, pos, node_size=3500, node_color='skyblue')
         nx.draw_networkx_labels(G, pos, labels=label_full, font_size=13, font_weight='bold')
