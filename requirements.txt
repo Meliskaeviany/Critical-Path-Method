@@ -1,4 +1,4 @@
 pandas
 networkx
-matplotlib.pyplot
+matplotlib
 streamlit
