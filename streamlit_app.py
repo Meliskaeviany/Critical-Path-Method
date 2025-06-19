@@ -3,17 +3,17 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import streamlit as st
 
-# Fungsi untuk membaca file CSV
-def load_data(uploaded_file):
-    return pd.read_csv(uploaded_file)
-
-# Konfigurasi halaman Streamlit
+# 🔧 Set konfigurasi halaman (WAJIB di awal)
 st.set_page_config(
     page_title="CPM (Critical Path Method)",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Fungsi untuk membaca file CSV
+def load_data(uploaded_file):
+    return pd.read_csv(uploaded_file)
 
 # Fungsi utama untuk menghitung dan menampilkan CPM
 def calculate_cpm(data):
@@ -71,22 +71,12 @@ def calculate_cpm(data):
         critical_path_edges = [(critical_path[i], critical_path[i + 1]) for i in range(len(critical_path) - 1)]
         critical_path_duration = project_duration
 
-        # Posisi visualisasi berdasarkan early_start
-        # Membuat posisi yang lebih sesuai antara start dan finish
-        pos = {}
-        max_early_start = max([G.nodes[node]['early_start'] for node in G.nodes])
-        for node in G.nodes:
-            # Menyesuaikan posisi berdasarkan ES dan LS, dengan posisi y menyesuaikan
-            early_start = G.nodes[node]['early_start']
-            late_start = G.nodes[node]['late_start']
-            pos[node] = (early_start, late_start)
-
-        # Menyusun posisi vertikal node berdasarkan level
+        # Visualisasi posisi
         for node in G.nodes:
             G.nodes[node]['level'] = G.nodes[node]['early_start']
         pos = nx.multipartite_layout(G, subset_key="level")
 
-        # Label untuk node (No, ES, LS, Duration)
+        # Label node (No, ES, LS, Durasi)
         label_full = {}
         for node in G.nodes:
             no = data[data['Notasi'] == node]['No.'].values[0]
@@ -95,23 +85,21 @@ def calculate_cpm(data):
             dur = G.nodes[node]['duration']
             label_full[node] = f"{no}\nES: {es}\nLS: {ls}\nD: {dur}"
 
-        # Gambar graf dengan resolusi tinggi
-        plt.figure(figsize=(60, 20), dpi=800)  # Ukuran gambar dan dpi disesuaikan
+        # Gambar grafik
+        plt.figure(figsize=(60, 20), dpi=800)
         nx.draw_networkx_edges(G, pos, edge_color='gray')
         nx.draw_networkx_nodes(G, pos, node_size=3500, node_color='skyblue')
         nx.draw_networkx_labels(G, pos, labels=label_full, font_size=13, font_weight='bold')
-
-        # Hasil jalur kritis
         nx.draw_networkx_edges(G, pos, edgelist=critical_path_edges, edge_color='red', width=1)
 
         plt.title(f'Critical Path: {" → ".join(critical_path)}\nTotal Duration: {critical_path_duration} hari', fontsize=20)
         plt.axis('off')
         st.pyplot(plt)
 
-        # Informasi Jalur Kritis
+        # Informasi jalur kritis
         st.subheader("Informasi Jalur Kritis")
-        st.markdown(f"Jalur Kritis: {' → '.join(critical_path)}")
-        st.markdown(f"Total Durasi Proyek: {critical_path_duration} hari")
+        st.markdown(f"**Jalur Kritis:** {' → '.join(critical_path)}")
+        st.markdown(f"**Total Durasi Proyek:** {critical_path_duration} hari")
 
         # Tabel hasil CPM
         data_table = []
@@ -156,7 +144,6 @@ with st.sidebar.expander("Petunjuk :", expanded=False):
         unsafe_allow_html=True
     )
 
-# Petunjuk penggunaan
 with st.sidebar.expander("Keterangan :", expanded=False):
     st.markdown(
         '<p style="font-size: 10px;">' \
@@ -171,11 +158,11 @@ with st.sidebar.expander("Keterangan :", expanded=False):
 # Judul halaman
 st.title("📊 Critical Path Method")
 
-# Proses jika file diupload
+# Proses upload dan kalkulasi
 if uploaded_file is not None:
     df = load_data(uploaded_file)
     st.write("Data yang diupload:")
     st.dataframe(df)
-
-    # Jalankan kalkulasi dan visualisasi CPM
     calculate_cpm(df)
+else:
+    st.info("Silakan upload file CSV terlebih dahulu.")
